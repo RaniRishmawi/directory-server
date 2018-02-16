@@ -125,7 +125,7 @@ public class ApacheDsService
     /** The configuration reader instance */
     private ConfigPartitionReader cpReader;
 
-    // variables used during the initial startup to update the mandatory operational
+    // variables used during here the initial startup to update the mandatory operational
     // attributes
     /** The UUID syntax checker instance */
     private UuidSyntaxChecker uuidChecker = UuidSyntaxChecker.INSTANCE;

@@ -28,10 +28,19 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import zeva.vgalproxy.api.VgalProxy;
+import zeva.vgalproxy.api.VgalServiceBuilder;
+
+import org.apache.directory.server.vgalpartition.FilterEmailExtractor;
+import org.apache.directory.server.vgalpartition.ReadOnlyVGALPartition;
+import org.apache.directory.server.vgalpartition.SimpleEmailValidator;
 
 
 /**
@@ -50,6 +59,49 @@ public class UberjarMain
     /** The ApacheDS service */
     private ApacheDsService service;
 
+    /** This method is for Procrun support */
+    public static void start( String[] args ){
+    	
+    	if ( ( args == null ) || ( args.length < 1 ) )
+        {
+            throw new IllegalArgumentException( "Instance directory argument is missing" );
+        }
+
+        String instanceDirectory = args[0];
+        
+        UberjarMain instance = new UberjarMain();
+        
+        LOG.debug( "Starting runtime" );
+        
+        String settingsLocation = null;
+		if (args.length == 3)
+			settingsLocation = args[2];
+		else
+			throw new IllegalArgumentException( "Settings directory argument is missing" );
+        
+        instance.start( instanceDirectory, settingsLocation);
+        
+        LOG.trace( "Exiting main" );
+    }
+    
+    /** This method is for Procrun support */
+    public static void stop( String[] args ) throws Exception{
+    	if ( ( args == null ) || ( args.length < 1 ) )
+        {
+            throw new IllegalArgumentException( "Instance directory argument is missing" );
+        }
+
+        String instanceDirectory = args[0];
+        
+        LOG.debug( "Stopping runtime" );
+        InstanceLayout layout = new InstanceLayout( instanceDirectory );
+        try ( Socket socket = new Socket( Network.LOOPBACK, readShutdownPort( layout ) );
+                PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
+        {
+            writer.print( readShutdownPassword( layout ) );
+        }
+    }
+    
     /**
      * Takes a single argument, the path to the installation home, which
      * contains the configuration to load with server startup settings.
@@ -74,7 +126,14 @@ public class UberjarMain
             case START :
                 // Starts the server
                 LOG.debug( "Starting runtime" );
-                instance.start( instanceDirectory );
+                
+                String settingsLocation = null;
+        		if (args.length == 3)
+        			settingsLocation = args[2];
+        		else
+        			new IllegalArgumentException( "Settings directory argument is missing" );
+                
+                instance.start( instanceDirectory, settingsLocation);
 
                 break;
 
@@ -137,7 +196,7 @@ public class UberjarMain
      *
      * @param instanceDirectory The directory containing the server instance 
      */
-    public void start( String instanceDirectory )
+    public void start( String instanceDirectory, String settingsLocation )
     {
         InstanceLayout layout = new InstanceLayout( instanceDirectory );
 
@@ -150,6 +209,32 @@ public class UberjarMain
             LOG.info( "Starting the service." );
             service.start( layout );
 
+            // Our composition root
+            AppSettingsLoader appSettingsLoader = new AppSettingsLoader();
+            
+            AppSettings appSettings = appSettingsLoader.Load(settingsLocation + "/Settings.xml");
+            
+            DirectoryService ds = service.getDirectoryService();
+            
+		    VgalProxy vgalService = VgalServiceBuilder.StartBuilding()
+		    			.WithWsdlUrl(appSettings.getVgalProxyWsdlUrl())
+		    			.UseWindowsCertificateStore(appSettings.getVgalClientCertificateThumbprint())
+		    			.Create();
+            
+            ReadOnlyVGALPartition vgalPartition = new ReadOnlyVGALPartition(
+            		vgalService,
+            		new FilterEmailExtractor(),
+            		new SimpleEmailValidator()
+            		);
+            
+            vgalPartition.setId("vgal");
+            
+            Dn base = new Dn(appSettings.getSuffixDn());
+            
+            vgalPartition.setSuffixDn(base);
+            
+            ds.addPartition(vgalPartition);
+            
             startShutdownListener( layout );
         }
         catch ( Exception e )

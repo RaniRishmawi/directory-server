@@ -116,7 +116,7 @@ public class UberJarMainTest
     private Thread createServer()
     {
         // First start the server to initialize the example partition 
-        uberjarMain.start( instanceDirectory.toString() );
+        uberjarMain.start( instanceDirectory.toString(), "");
 
         // Creating a separate thread for the connection verification
         Thread connectionVerificationThread = new Thread()

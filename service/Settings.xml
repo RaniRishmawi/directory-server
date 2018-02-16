@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<configuration>
+  <SuffixDn>2.5.4.11=zeva</SuffixDn>
+  <UserCertificateThumbprint>7cd223b17c040bc2eb9dfac0165124c573c4d75b</UserCertificateThumbprint>
+  <VgalProxyWsdlUrl>https://DESKTOP-OOMRQ7A:2099/Proxy/CertificateStore/mex</VgalProxyWsdlUrl>
+</configuration>
