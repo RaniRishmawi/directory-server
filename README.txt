@@ -1,3 +1,5 @@
+   This branch is still a proof of concept and it depends on external services to run.
+   
    This distribution includes cryptographic software.  The country in 
    which you currently reside may have restrictions on the import, 
    possession, use, and/or re-export to another country, of 
