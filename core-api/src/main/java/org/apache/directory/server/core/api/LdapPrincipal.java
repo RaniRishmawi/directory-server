@@ -50,6 +50,8 @@ public final class LdapPrincipal implements Principal, Cloneable
      * @todo security risk remove this immediately
      */
     private byte[][] userPasswords;
+    
+    private String certificateEmail;
 
     /** The SchemaManager */
     private SchemaManager schemaManager;
@@ -78,6 +80,7 @@ public final class LdapPrincipal implements Principal, Cloneable
 
         this.authenticationLevel = authenticationLevel;
         this.userPasswords = null;
+        this.certificateEmail = null;
     }
 
 
@@ -99,6 +102,7 @@ public final class LdapPrincipal implements Principal, Cloneable
         this.userPasswords[0] = new byte[userPassword.length];
         System.arraycopy( userPassword, 0, this.userPasswords[0], 0, userPassword.length );
         this.schemaManager = schemaManager;
+        this.certificateEmail = null;
     }
 
 
@@ -110,6 +114,7 @@ public final class LdapPrincipal implements Principal, Cloneable
     {
         authenticationLevel = AuthenticationLevel.NONE;
         userPasswords = null;
+        certificateEmail = null;
     }
 
 
@@ -121,6 +126,7 @@ public final class LdapPrincipal implements Principal, Cloneable
     {
         authenticationLevel = AuthenticationLevel.NONE;
         userPasswords = null;
+        certificateEmail = null;
         this.schemaManager = schemaManager;
     }
 
@@ -174,6 +180,14 @@ public final class LdapPrincipal implements Principal, Cloneable
             System.arraycopy( userPassword, 0, this.userPasswords[pos], 0, userPassword.length );
             pos++;
         }
+    }
+    
+    public String getCertificateEmail(){
+    	return certificateEmail;
+    }
+    
+    public void setCertificateEmail(String email){
+    	this.certificateEmail = email;
     }
 
 

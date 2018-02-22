@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>zeva.vgal.api</groupId>
 			<artifactId>VgalClientLib</artifactId>
-			<version>1.2</version>
+			<version>1.3</version>
 		</dependency>
 		
 		<dependency>
@@ -159,6 +159,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
 
