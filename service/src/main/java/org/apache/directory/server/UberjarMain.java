@@ -41,6 +41,7 @@ import zeva.vgalproxy.api.VgalServiceBuilder;
 import org.apache.directory.server.vgalpartition.FilterEmailExtractor;
 import org.apache.directory.server.vgalpartition.ReadOnlyVGALPartition;
 import org.apache.directory.server.vgalpartition.SimpleEmailValidator;
+import org.apache.directory.server.vgalpartition.X509CertificateToPkcs7Convertor;
 
 
 /**
@@ -224,8 +225,8 @@ public class UberjarMain
             ReadOnlyVGALPartition vgalPartition = new ReadOnlyVGALPartition(
             		vgalService,
             		new FilterEmailExtractor(),
-            		new SimpleEmailValidator()
-            		);
+            		new SimpleEmailValidator(),
+            		new X509CertificateToPkcs7Convertor());
             
             vgalPartition.setId("vgal");
             
